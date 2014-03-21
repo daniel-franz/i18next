@@ -98,7 +98,7 @@
         preload: [],
         lowerCaseLng: false,
         returnObjectTrees: false,
-        fallbackLng: 'dev',
+        fallbackLng: ['dev'],
         fallbackNS: [],
         detectLngQS: 'setLng',
         ns: 'translation',
@@ -569,7 +569,9 @@
                 languages.push(lng);
             }
     
-            if (languages.indexOf(o.fallbackLng) === -1 && o.fallbackLng) languages.push(o.fallbackLng);
+            for (var i = 0; i < o.fallbackLng.length; i++) {
+                if (languages.indexOf(o.fallbackLng[i]) === -1 && o.fallbackLng[i]) languages.push(o.fallbackLng[i]);
+            }
     
             return languages;
         },
@@ -599,6 +601,11 @@
             o.fallbackNS = [o.fallbackNS];
         }
     
+        // fallback languages
+        if (typeof o.fallbackLng == 'string') {
+            o.fallbackLng = [o.fallbackLng];
+        }
+    
         // escape prefix/suffix
         o.interpolationPrefixEscaped = f.regexEscape(o.interpolationPrefix);
         o.interpolationSuffixEscaped = f.regexEscape(o.interpolationSuffix);
@@ -608,7 +615,7 @@
             // set cookie with lng set (as detectLanguage will set cookie on need)
             if (o.useCookie) f.cookie.create(o.cookieName, o.lng, o.cookieExpirationTime, o.cookieDomain);
         } else {
-            o.lng =  o.fallbackLng;
+            o.lng =  o.fallbackLng[0];
             if (o.useCookie) f.cookie.remove(o.cookieName);
         }
     
@@ -1401,9 +1408,11 @@
     
             var urls = [];
     
-            if (o.sendMissingTo === 'fallback' && o.fallbackLng !== false) {
-                urls.push({lng: o.fallbackLng, url: applyReplacement(o.resPostPath, { lng: o.fallbackLng, ns: ns })});
-            } else if (o.sendMissingTo === 'current' || (o.sendMissingTo === 'fallback' && o.fallbackLng === false) ) {
+            if (o.sendMissingTo === 'fallback' && o.fallbackLng[0] !== false) {
+                for (var i = 0; i < o.fallbackLng.length; i++) {
+                    urls.push({lng: o.fallbackLng[i], url: applyReplacement(o.resPostPath, { lng: o.fallbackLng[i], ns: ns })});
+                }
+            } else if (o.sendMissingTo === 'current' || (o.sendMissingTo === 'fallback' && o.fallbackLng[0] === false) ) {
                 urls.push({lng: lng, url: applyReplacement(o.resPostPath, { lng: lng, ns: ns })});
             } else if (o.sendMissingTo === 'all') {
                 for (var i = 0, l = lngs.length; i < l; i++) {
